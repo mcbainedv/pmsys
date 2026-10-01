@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Work Order {{ plan.wo_no }}</title>
+  {% include "reports/_doc_style.html" %}
+</head>
+<body class="report" style="padding:0">
+  <div class="no-print" style="padding:12px 16px;text-align:right;border-bottom:1px solid var(--border)">
+    <button class="btn" onclick="window.print()">Print</button>
+    <a class="btn" href="{{ request.url.path }}{{ ('?' ~ request.url.query ~ '&') if request.url.query else '?' }}format=pdf">Download PDF</a>
+  </div>
+
+  <div style="max-width:800px;margin:24px auto;padding:0 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #222;padding-bottom:12px">
+      <div>
+        <h1 style="margin:0">WORK ORDER</h1>
+        <div style="color:#333">{{ plan.wo_no }}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="tag" style="font-size:16px">{{ plan.equipment.tag1 }}</div>
+        <div style="color:#555">{{ plan.service.name }}</div>
+      </div>
+    </div>
+
+    <h3 style="margin:20px 0 8px">Equipment</h3>
+    <table class="table">
+      <tbody>
+        <tr><th style="width:180px">Tag</th><td class="tag">{{ plan.equipment.tag1 }} / {{ plan.equipment.tag2 }}</td></tr>
+        <tr><th>Description</th><td>{{ plan.equipment.description or '—' }}</td></tr>
+        <tr><th>Type</th><td>{{ plan.equipment.equipment_type or '—' }}</td></tr>
+        <tr><th>Manufacturer / Model</th><td>{{ plan.equipment.manufacturer or '—' }} / {{ plan.equipment.model or '—' }}</td></tr>
+        <tr><th>Serial no.</th><td>{{ plan.equipment.serial_no or '—' }}</td></tr>
+        <tr><th>Location</th><td>{{ plan.equipment.customer.name }} — {{ plan.equipment.field.name if plan.equipment.field else '' }} — {{ plan.equipment.location.name if plan.equipment.location else '' }}</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin:20px 0 8px">Service</h3>
+    <table class="table">
+      <tbody>
+        <tr><th style="width:180px">Service code</th><td class="tag">{{ plan.service.code }}</td></tr>
+        <tr><th>Name</th><td>{{ plan.service.name }}</td></tr>
+        <tr><th>Frequency</th><td>Every {{ plan.service.frequency_weeks }} weeks</td></tr>
+        <tr><th>Discipline</th><td>{{ plan.service.discipline or '—' }}</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin:20px 0 8px">Schedule</h3>
+    <table class="table">
+      <tbody>
+        <tr><th style="width:180px">Last completed</th><td>{{ plan.last_completed_date|fmt_date }}</td></tr>
+        <tr><th>Proposed date</th><td>{{ plan.proposed_date|fmt_date }}</td></tr>
+        <tr><th>Scheduled date</th><td>{{ plan.schedule_date|fmt_date or '—' }}</td></tr>
+        <tr><th>Vendor</th><td>{{ plan.vendor.name if plan.vendor else '—' }}</td></tr>
+        <tr><th>Responsible technician</th><td>{{ (plan.personnel.first_name ~ ' ' ~ plan.personnel.last_name ~ ' (' ~ plan.personnel.discipline ~ ')') if plan.personnel else '—' }}</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin:20px 0 8px">Work performed</h3>
+    <table class="table">
+      <tbody>
+        {% for line in ['Service performed as per procedure', 'Calibration / measurements completed', 'Readings recorded and attached', 'Defects noted and reported'] %}
+        <tr><td style="width:24px">☐</td><td>{{ line }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div style="margin-top:40px;display:flex;justify-content:space-between;font-size:13px">
+      <div>Performed by: ______________________</div>
+      <div>Date: ______________________</div>
+      <div>Signature: ______________________</div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-top:28px;font-size:12px;color:#555;border-top:1px solid #bbb;padding-top:8px">
+      <span>Printed by {{ printed_by }}</span>
+      <span>{{ today.strftime('%A, %B %d, %Y') }}</span>
+    </div>
+  </div>
+</body>
+</html>

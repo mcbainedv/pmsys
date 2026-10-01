@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Equipment — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Equipment Data</h1><div class="sub">Tracked assets organized by customer / field / location.</div></div></div>
+{% include "setup/_tabs.html" %}
+
+<div class="card">
+  <h2>{{ 'Edit equipment' if edit_obj else 'Add equipment' }}</h2>
+  <form method="post" action="/setup/equipment" class="form-grid">
+    {% if edit_obj %}<input type="hidden" name="equipment_id" value="{{ edit_obj.id }}">{% endif %}
+    <div class="field"><label>Customer</label>
+      <select name="customer_id" required>
+        <option value="">— Customer —</option>
+        {% for cid, cname in customers %}
+        <option value="{{ cid }}" {{ 'selected' if edit_obj and edit_obj.customer_id == cid }}>{{ cname }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field"><label>Field</label>
+      <select name="field_id" required>
+        <option value="">— Customer / Field —</option>
+        {% for fid, fname in fields %}
+        <option value="{{ fid }}" {{ 'selected' if edit_obj and edit_obj.field_id == fid }}>{{ fname }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field"><label>Location</label>
+      <select name="location_id" required>
+        <option value="">— Location —</option>
+        {% for lid, lname in locations %}
+        <option value="{{ lid }}" {{ 'selected' if edit_obj and edit_obj.location_id == lid }}>{{ lname }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field"><label>Tag 1 *</label><input type="text" name="tag1" placeholder="FIT-1140" value="{{ edit_obj.tag1 if edit_obj else '' }}" required></div>
+    <div class="field"><label>Tag 2</label><input type="text" name="tag2" placeholder="INLET" value="{{ edit_obj.tag2 if edit_obj else '' }}"></div>
+    <div class="field"><label>Description</label><input type="text" name="description" value="{{ edit_obj.description if edit_obj else '' }}"></div>
+    <div class="field"><label>Type</label><input type="text" name="equipment_type" placeholder="Meter" value="{{ edit_obj.equipment_type if edit_obj else '' }}"></div>
+    <div class="field"><label>Manufacturer</label><input type="text" name="manufacturer" value="{{ edit_obj.manufacturer if edit_obj else '' }}"></div>
+    <div class="field"><label>Model</label><input type="text" name="model" value="{{ edit_obj.model if edit_obj else '' }}"></div>
+    <div class="field"><label>Serial no.</label><input type="text" name="serial_no" value="{{ edit_obj.serial_no if edit_obj else '' }}"></div>
+    <div class="field"><label>Parts list no.</label><input type="text" name="parts_list_no" value="{{ edit_obj.parts_list_no if edit_obj else '' }}"></div>
+    <div class="field"><label>Instruction no.</label><input type="text" name="instruction_no" value="{{ edit_obj.instruction_no if edit_obj else '' }}"></div>
+    <div class="field checkbox-row"><input type="checkbox" name="is_active" id="is_active" {{ 'checked' if not edit_obj or edit_obj.is_active }}><label for="is_active" style="text-transform:none">Active</label></div>
+    <div class="field full"><button class="btn btn-primary" type="submit">{{ 'Save changes' if edit_obj else 'Add equipment' }}</button>{% if edit_obj %} <a href="/setup/equipment" class="btn">Cancel</a>{% endif %}</div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>All equipment</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Tag 1</th><th>Tag 2</th><th>Description</th><th>Type</th><th>Manufacturer</th><th>Model</th><th>Customer / Field</th><th>Location</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td class="tag">{{ r.tag1 }}</td>
+          <td>{{ r.tag2 }}</td>
+          <td>{{ r.description }}</td>
+          <td>{{ r.equipment_type or '—' }}</td>
+          <td>{{ r.manufacturer or '—' }}</td>
+          <td>{{ r.model or '—' }}</td>
+          <td>{{ r.customer.name }} / {{ r.field.name if r.field else '—' }}</td>
+          <td class="tag">{{ r.location.name if r.location else '—' }}</td>
+          <td>
+            <a class="btn btn-sm" href="/setup/equipment?edit={{ r.id }}">Edit</a>
+            <form method="post" action="/setup/equipment/{{ r.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this equipment?')">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="muted" colspan="9">No equipment yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

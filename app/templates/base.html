@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}PMSyS{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <script src="/static/js/htmx.min.js" defer></script>
+</head>
+<body>
+  <header class="app-header no-print">
+    <div class="brand"><span class="badge">PM</span> PMSyS <small>Preventive Maintenance</small></div>
+    <nav class="app-nav">
+      <a href="/" class="{{ 'active' if request.url.path == '/' }}">Home</a>
+      <div class="dropdown">
+        <a href="/setup/equipment" class="{{ 'active' if request.url.path.startswith('/setup') }}">Setup ▾</a>
+        <div class="dropdown-menu">
+          <a href="/setup/customers">Customers</a>
+          <a href="/setup/fields">Fields</a>
+          <a href="/setup/locations">Locations</a>
+          <a href="/setup/equipment">Equipment</a>
+          <a href="/setup/services">Service Codes</a>
+          <a href="/setup/vendors">Service Vendors</a>
+          <a href="/setup/personnel">Technicians</a>
+        </div>
+      </div>
+      <a href="/planning/draft" class="{{ 'active' if request.url.path.startswith('/planning/draft') }}">Draft Plan</a>
+      <a href="/planning/final" class="{{ 'active' if request.url.path.startswith('/planning/final') }}">Final Plan</a>
+      <a href="/history" class="{{ 'active' if request.url.path.startswith('/history') }}">History</a>
+      {% if user.role == 'admin' %}<a href="/users" class="{{ 'active' if request.url.path.startswith('/users') }}">Users</a>{% endif %}
+    </nav>
+    <div class="user-menu">
+      <span class="who">{{ user.display_name or user.username }}</span>
+      <a href="/account" class="{{ 'active' if request.url.path.startswith('/account') }}">Account</a>
+      <form method="post" action="/logout" style="margin:0">
+        <button class="btn btn-sm btn-ghost" type="submit">Log out</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="app-body">
+    {% set f = request.session.pop('_flash', None) %}
+    {% if f %}<div class="flash flash-{{ f[1] }}">{{ f[0] }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="app-footer no-print">PMSyS — Preventive Maintenance System</footer>
+</body>
+</html>

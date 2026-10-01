@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+  {% include "reports/_doc_style.html" %}
+</head>
+<body class="report" style="padding:0">
+  <div class="no-print" style="padding:12px 16px;text-align:right;border-bottom:1px solid var(--border)">
+    <button class="btn" onclick="window.print()">Print</button>
+    <a class="btn" href="{{ request.url.path }}{{ ('?' ~ request.url.query ~ '&') if request.url.query else '?' }}format=pdf">Download PDF</a>
+  </div>
+  {% if pdf_unavailable %}<div class="flash flash-info no-print">PDF export is unavailable in this build — use Print, then choose "Save as PDF".</div>{% endif %}
+
+  <div style="max-width:1024px;margin:24px auto;padding:0 24px">
+    <h1 style="text-align:center;margin:0 0 4px">{{ title }}</h1>
+    <p style="text-align:center;color:#333;margin:0 0 20px">PMSyS — Preventive Maintenance System</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Equipment Tag 1</th><th>Tag 2</th><th>Service</th><th>Customer</th>
+          <th>Field</th><th>Location</th>
+          {% if scheduled %}<th>Schedule date</th><th>Vendor</th><th>Technician</th><th>Work order</th>{% endif %}
+          <th>Last completed</th><th>Proposed date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in plans %}
+        <tr>
+          <td class="tag">{{ p.equipment.tag1 }}</td>
+          <td>{{ p.equipment.tag2 }}</td>
+          <td>{{ p.service.name }}</td>
+          <td>{{ p.equipment.customer.name }}</td>
+          <td>{{ p.equipment.field.name if p.equipment.field else '' }}</td>
+          <td class="tag">{{ p.equipment.location.name if p.equipment.location else '' }}</td>
+          {% if scheduled %}
+          <td>{{ p.schedule_date|fmt_date }}</td>
+          <td>{{ p.vendor.name if p.vendor else '' }}</td>
+          <td>{{ (p.personnel.first_name ~ ' ' ~ p.personnel.last_name) if p.personnel else '' }}</td>
+          <td class="tag">{{ p.wo_no or '' }}</td>
+          {% endif %}
+          <td>{{ p.last_completed_date|fmt_date }}</td>
+          <td>{{ p.proposed_date|fmt_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div style="display:flex;justify-content:space-between;margin-top:36px;font-size:12px;color:#555">
+      <span>Printed by {{ printed_by }}</span>
+      <span>{{ today.strftime('%A, %B %d, %Y') }}</span>
+      <span>Page 1</span>
+    </div>
+  </div>
+</body>
+</html>

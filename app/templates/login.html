@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in — PMSyS</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1><span class="badge" style="background:var(--accent);color:#fff;border-radius:6px;padding:2px 8px;">PM</span> PMSyS</h1>
+      <div class="sub">Preventive Maintenance System — sign in</div>
+      {% if error %}<div class="flash flash-error">{{ error }}</div>{% endif %}
+      {% set f = request.session.pop('_flash', None) %}
+      {% if f %}<div class="flash flash-{{ f[1] }}">{{ f[0] }}</div>{% endif %}
+      <form method="post" action="/login">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" name="username" autocomplete="username" autofocus required>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" name="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+      </form>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:16px">
+        Default login: <code>admin</code> / <code>admin</code>
+      </p>
+      <p style="margin-top:8px"><a class="btn" href="/">Back to home</a></p>
+    </div>
+  </div>
+</body>
+</html>

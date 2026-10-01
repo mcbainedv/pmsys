@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Calibration {{ plan.cm_no }}</title>
+  {% include "reports/_doc_style.html" %}
+</head>
+<body class="report" style="padding:0">
+  <div class="no-print" style="padding:12px 16px;text-align:right;border-bottom:1px solid var(--border)">
+    <button class="btn" onclick="window.print()">Print</button>
+    <a class="btn" href="{{ request.url.path }}{{ ('?' ~ request.url.query ~ '&') if request.url.query else '?' }}format=pdf">Download PDF</a>
+  </div>
+
+  <div style="max-width:800px;margin:24px auto;padding:0 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #222;padding-bottom:12px">
+      <div>
+        <h1 style="margin:0">CALIBRATION REPORT</h1>
+        <div style="color:#333">{{ plan.cm_no }}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="tag" style="font-size:16px">{{ plan.equipment.tag1 }}</div>
+        <div style="color:#555">{{ plan.service.name }}</div>
+      </div>
+    </div>
+
+    <h3 style="margin:20px 0 8px">Instrument</h3>
+    <table class="table">
+      <tbody>
+        <tr><th style="width:180px">Tag</th><td class="tag">{{ plan.equipment.tag1 }} / {{ plan.equipment.tag2 }}</td></tr>
+        <tr><th>Description</th><td>{{ plan.equipment.description or '—' }}</td></tr>
+        <tr><th>Manufacturer / Model</th><td>{{ plan.equipment.manufacturer or '—' }} / {{ plan.equipment.model or '—' }}</td></tr>
+        <tr><th>Serial no.</th><td>{{ plan.equipment.serial_no or '—' }}</td></tr>
+        <tr><th>Location</th><td>{{ plan.equipment.customer.name }} — {{ plan.equipment.field.name if plan.equipment.field else '' }} — {{ plan.equipment.location.name if plan.equipment.location else '' }}</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin:20px 0 8px">Calibration details</h3>
+    <table class="table">
+      <tbody>
+        <tr><th style="width:180px">Work order</th><td class="tag">{{ plan.wo_no or '—' }}</td></tr>
+        <tr><th>Last completed</th><td>{{ plan.last_completed_date|fmt_date }}</td></tr>
+        <tr><th>Scheduled date</th><td>{{ plan.schedule_date|fmt_date or '—' }}</td></tr>
+        <tr><th>Actual date</th><td>{{ plan.actual_date|fmt_date or '—' }}</td></tr>
+        <tr><th>Vendor</th><td>{{ plan.vendor.name if plan.vendor else '—' }}</td></tr>
+        <tr><th>Technician</th><td>{{ (plan.personnel.first_name ~ ' ' ~ plan.personnel.last_name) if plan.personnel else '—' }}</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin:20px 0 8px">Calibration results</h3>
+    <table class="table">
+      <thead><tr><th>Test point</th><th>As found</th><th>As left</th><th>Pass / Fail</th></tr></thead>
+      <tbody>
+        {% for i in range(1, 6) %}
+        <tr><td>{{ i }}</td><td>&nbsp;</td><td>&nbsp;</td><td>☐</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:#333">Tolerance: ± __________ &nbsp;&nbsp; Certified equipment used: ☐ &nbsp; Serial no.: __________</p>
+
+    <div style="margin-top:40px;display:flex;justify-content:space-between;font-size:13px">
+      <div>Technician: ______________________</div>
+      <div>Date: ______________________</div>
+      <div>Signature: ______________________</div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-top:28px;font-size:12px;color:#555;border-top:1px solid #bbb;padding-top:8px">
+      <span>Printed by {{ printed_by }}</span>
+      <span>{{ today.strftime('%A, %B %d, %Y') }}</span>
+    </div>
+  </div>
+</body>
+</html>

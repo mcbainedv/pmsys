@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Service Codes — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Service Code Data</h1><div class="sub">Service definitions; frequency in weeks drives scheduling.</div></div></div>
+{% include "setup/_tabs.html" %}
+
+<div class="card">
+  <h2>{{ 'Edit service' if edit_obj else 'Add service' }}</h2>
+  <form method="post" action="/setup/services" class="form-grid">
+    {% if edit_obj %}<input type="hidden" name="service_id" value="{{ edit_obj.id }}">{% endif %}
+    <div class="field"><label>Code</label><input type="text" name="code" placeholder="SCJ008" maxlength="32" value="{{ edit_obj.code if edit_obj else '' }}" required></div>
+    <div class="field"><label>Name</label><input type="text" name="name" placeholder="Plant Alarms" maxlength="128" value="{{ edit_obj.name if edit_obj else '' }}" required></div>
+    <div class="field"><label>Frequency (weeks)</label><input type="number" name="frequency_weeks" min="1" max="520" value="{{ edit_obj.frequency_weeks if edit_obj else 4 }}" required></div>
+    <div class="field"><label>Est. hours</label><input type="number" name="estimated_hours" step="0.5" min="0" max="100000" value="{{ edit_obj.estimated_hours if edit_obj and edit_obj.estimated_hours else '' }}"></div>
+    <div class="field"><label>Discipline</label><input type="text" name="discipline" placeholder="Electrical" maxlength="64" value="{{ edit_obj.discipline if edit_obj else '' }}"></div>
+    <div class="field full"><label>Description</label><input type="text" name="description" value="{{ edit_obj.description if edit_obj else '' }}"></div>
+    <div class="field"><button class="btn btn-primary" type="submit">{{ 'Save changes' if edit_obj else 'Add service' }}</button>{% if edit_obj %} <a href="/setup/services" class="btn">Cancel</a>{% endif %}</div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>All services</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Code</th><th>Name</th><th>Freq (wks)</th><th>Hours</th><th>Discipline</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td class="tag">{{ r.code }}</td>
+          <td>{{ r.name }}</td>
+          <td>{{ r.frequency_weeks }}</td>
+          <td>{{ r.estimated_hours or '—' }}</td>
+          <td>{{ r.discipline or '—' }}</td>
+          <td>
+            <a class="btn btn-sm" href="/setup/services?edit={{ r.id }}">Edit</a>
+            <form method="post" action="/setup/services/{{ r.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this service?')">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="muted" colspan="6">No services yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}History — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>History</h1><div class="sub">Completed and cancelled service records.</div></div></div>
+
+<div class="card">
+  <form method="get" action="/history" class="inline-form" style="margin-bottom:4px">
+    <div class="field"><label>Customer</label>
+      <select name="customer_id">
+        <option value="0">— All customers —</option>
+        {% for c in customers %}
+        <option value="{{ c.id }}" {{ 'selected' if customer_id == c.id }}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field"><label>Completed from</label><input type="date" name="from" value="{{ from_d|fmt_date if from_d else '' }}"></div>
+    <div class="field"><label>Completed to</label><input type="date" name="to" value="{{ to_d|fmt_date if to_d else '' }}"></div>
+    <button class="btn" type="submit">Filter</button>
+    <a class="btn btn-ghost" href="/history">Reset</a>
+  </form>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Actual date</th><th>Tag 1</th><th>Service</th><th>Location</th><th>Customer</th>
+          <th>Work order</th><th>Calibration</th><th>Vendor</th><th>Technician</th><th>Status</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in plans %}
+        <tr>
+          <td>{{ p.actual_date|fmt_date or '—' }}</td>
+          <td class="tag">{{ p.equipment.tag1 }}</td>
+          <td>{{ p.service.name }}</td>
+          <td class="tag">{{ p.equipment.location.name if p.equipment.location else '—' }}</td>
+          <td>{{ p.equipment.customer.name }}</td>
+          <td class="tag">{{ p.wo_no or '—' }}</td>
+          <td class="tag">{{ p.cm_no or '—' }}</td>
+          <td>{{ p.vendor.name if p.vendor else '—' }}</td>
+          <td>{{ (p.personnel.first_name ~ ' ' ~ p.personnel.last_name) if p.personnel else '—' }}</td>
+          <td><span class="chip chip-{{ p.status }}">{{ p.status }}</span></td>
+          <td>
+            <a class="btn btn-sm" href="/reports/work-order/{{ p.id }}" target="_blank">Work order</a>
+            <a class="btn btn-sm" href="/reports/calibration/{{ p.id }}" target="_blank">Calibration</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="muted" colspan="11">No history records yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

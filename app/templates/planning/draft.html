@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Draft Plan — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Draft Plan</h1><div class="sub">Build the list of upcoming maintenance, then schedule approved items.</div></div>
+  <a class="btn" href="/planning/draft/print" target="_blank">Print draft plan</a>
+</div>
+
+<div class="card">
+  <h2>Add items</h2>
+  <form method="post" action="/planning/draft/add">
+    <div class="field" style="margin-bottom:10px">
+      <label>Service</label>
+      <select name="service_id" required style="max-width:360px">
+        <option value="">— Select service —</option>
+        {% for s in services %}
+        <option value="{{ s.id }}">{{ s.code }} — {{ s.name }} (every {{ s.frequency_weeks }} wks)</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:10px">
+      <label>Equipment</label>
+      <div class="equipment-picker">
+        <label><input type="checkbox" onchange="ToggleAll(this)"> <strong>Select all</strong></label>
+        {% for e in equipment %}
+        <label>
+          <input type="checkbox" name="equipment_ids" value="{{ e.id }}">
+          <span class="tag">{{ e.tag1 }}</span>
+          <span class="meta">{{ e.description }} — {{ e.customer.name }} / {{ e.field.name if e.field else '' }}</span>
+        </label>
+        {% else %}
+        <span class="muted" style="color:var(--text-muted)">No active equipment. Add some under <a href="/setup/equipment">Setup → Equipment</a>.</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="inline-form" style="align-items:end">
+      <div class="field">
+        <label>Proposed date (optional — defaults to last completed + frequency)</label>
+        <input type="date" name="proposed_date_override">
+      </div>
+      <button class="btn btn-primary" type="submit">Add to PM</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <form method="get" action="/planning/draft" class="inline-form" style="margin-bottom:14px">
+    <div class="field">
+      <label>Due from</label>
+      <input type="date" name="from" value="{{ from_d|fmt_date if from_d else '' }}">
+    </div>
+    <div class="field">
+      <label>Due to</label>
+      <input type="date" name="to" value="{{ to_d|fmt_date if to_d else '' }}">
+    </div>
+    <button class="btn" type="submit">Filter</button>
+    <a class="btn btn-ghost" href="/planning/draft">Reset</a>
+  </form>
+</div>
+
+<div class="card">
+  <form method="post" action="/planning/schedule">
+    <div class="inline-form" style="margin-bottom:14px">
+      <div class="field"><label>Schedule date</label><input type="date" name="schedule_date" value="{{ today|fmt_date }}" required></div>
+      <div class="field"><label>Vendor</label>
+        <select name="vendor_id"><option value="0">— None —</option>
+          {% for v in vendors %}<option value="{{ v.id }}">{{ v.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field"><label>Responsible technician</label>
+        <select name="personnel_id"><option value="0">— None —</option>
+          {% for p in personnel %}<option value="{{ p.id }}">{{ p.first_name }} {{ p.last_name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field checkbox-row"><input type="checkbox" name="auto_assign" id="auto_assign"><label for="auto_assign" style="text-transform:none">Auto-assign evenly</label></div>
+      <button class="btn btn-primary" type="submit">Schedule selected</button>
+      <button class="btn btn-danger" type="submit" formaction="/planning/draft/delete" onclick="return confirm('Delete selected draft items?')">Delete selected</button>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" onclick="ToggleAll(this)" data-target="plan_ids"></th>
+            <th>ID</th><th>Tag 1</th><th>Tag 2</th><th>Location</th><th>Field</th>
+            <th>Customer</th><th>Service</th><th>Last completed</th><th>Proposed date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in plans %}
+          <tr>
+            <td><input type="checkbox" name="plan_ids" value="{{ p.id }}"></td>
+            <td>{{ p.id }}</td>
+            <td class="tag">{{ p.equipment.tag1 }}</td>
+            <td>{{ p.equipment.tag2 }}</td>
+            <td class="tag">{{ p.equipment.location.name if p.equipment.location else '—' }}</td>
+            <td>{{ p.equipment.field.name if p.equipment.field else '—' }}</td>
+            <td>{{ p.equipment.customer.name }}</td>
+            <td>{{ p.service.name }}</td>
+            <td>{{ p.last_completed_date|fmt_date }}</td>
+            <td>{{ p.proposed_date|fmt_date }}</td>
+          </tr>
+          {% else %}
+          <tr><td class="muted" colspan="10">No draft items. Add equipment above to build the plan.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+<script>
+function ToggleAll(src) {
+  var name = src.getAttribute('data-target') || 'equipment_ids';
+  document.querySelectorAll('input[name="' + name + '"]').forEach(function (c) { c.checked = src.checked; });
+}
+</script>
+{% endblock %}

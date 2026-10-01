@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Locations — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Location Data</h1><div class="sub">Legal survey / site location identifiers.</div></div></div>
+{% include "setup/_tabs.html" %}
+
+<div class="card">
+  <h2>{{ 'Edit location' if edit_obj else 'Add location' }}</h2>
+  <form method="post" action="/setup/locations" class="inline-form">
+    {% if edit_obj %}<input type="hidden" name="location_id" value="{{ edit_obj.id }}">{% endif %}
+    <select name="field_id" required style="max-width:280px">
+      <option value="">— Customer / Field —</option>
+      {% for fid, fname in fields %}
+      <option value="{{ fid }}" {{ 'selected' if edit_obj and edit_obj.field_id == fid }}>{{ fname }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="name" placeholder="Location (e.g. 10-03-57-23W5)" maxlength="128" value="{{ edit_obj.name if edit_obj else '' }}" required style="max-width:280px">
+    <button class="btn btn-primary" type="submit">{{ 'Save changes' if edit_obj else 'Add location' }}</button>
+    {% if edit_obj %}<a href="/setup/locations" class="btn">Cancel</a>{% endif %}
+  </form>
+</div>
+
+<div class="card">
+  <h2>All locations</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Location</th><th>Customer / Field</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td class="tag">{{ r.name }}</td>
+          <td>{{ r.field.customer.name }} / {{ r.field.name }}</td>
+          <td>
+            <a class="btn btn-sm" href="/setup/locations?edit={{ r.id }}">Edit</a>
+            <form method="post" action="/setup/locations/{{ r.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this location?')">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="muted" colspan="3">No locations yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

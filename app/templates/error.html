@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ status }} {{ title }} — PMSyS</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1><span class="badge" style="background:var(--accent);color:#fff;border-radius:6px;padding:2px 8px;">PM</span> {{ status }}</h1>
+      <div class="sub">{{ title }}</div>
+      <p style="color:var(--text-muted);font-size:14px">{{ message }}</p>
+      <p style="margin-top:16px">
+        <a class="btn" href="javascript:history.back()">Go back</a>
+        <a class="btn btn-primary" href="/">Home</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

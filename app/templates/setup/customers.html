@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Customers — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Customers</h1><div class="sub">Top-level clients in the equipment hierarchy.</div></div></div>
+{% include "setup/_tabs.html" %}
+
+<div class="card">
+  <h2>{{ 'Edit customer' if edit_obj else 'Add customer' }}</h2>
+  <form method="post" action="/setup/customers" class="inline-form">
+    {% if edit_obj %}<input type="hidden" name="customer_id" value="{{ edit_obj.id }}">{% endif %}
+    <input type="text" name="name" placeholder="Customer name" maxlength="128" value="{{ edit_obj.name if edit_obj else '' }}" required style="max-width:320px">
+    <button class="btn btn-primary" type="submit">{{ 'Save changes' if edit_obj else 'Add customer' }}</button>
+    {% if edit_obj %}<a href="/setup/customers" class="btn">Cancel</a>{% endif %}
+  </form>
+</div>
+
+<div class="card">
+  <h2>All customers</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.name }}</td>
+          <td>
+            <a class="btn btn-sm" href="/setup/customers?edit={{ r.id }}">Edit</a>
+            <form method="post" action="/setup/customers/{{ r.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this customer?')">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="muted" colspan="2">No customers yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

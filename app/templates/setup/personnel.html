@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Technicians — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Technicians</h1><div class="sub">Responsible personnel for scheduling and closeout.</div></div></div>
+{% include "setup/_tabs.html" %}
+
+<div class="card">
+  <h2>{{ 'Edit technician' if edit_obj else 'Add technician' }}</h2>
+  <form method="post" action="/setup/personnel" class="form-grid">
+    {% if edit_obj %}<input type="hidden" name="personnel_id" value="{{ edit_obj.id }}">{% endif %}
+    <div class="field"><label>First name</label><input type="text" name="first_name" maxlength="64" value="{{ edit_obj.first_name if edit_obj else '' }}" required></div>
+    <div class="field"><label>Last name</label><input type="text" name="last_name" maxlength="64" value="{{ edit_obj.last_name if edit_obj else '' }}" required></div>
+    <div class="field"><label>Position</label><input type="text" name="position" placeholder="MT / ET" maxlength="32" value="{{ edit_obj.position if edit_obj else '' }}"></div>
+    <div class="field"><label>Discipline</label><input type="text" name="discipline" placeholder="Mechanical" maxlength="64" value="{{ edit_obj.discipline if edit_obj else '' }}"></div>
+    <div class="field checkbox-row"><input type="checkbox" name="is_active" id="is_active" {{ 'checked' if not edit_obj or edit_obj.is_active }}><label for="is_active" style="text-transform:none">Active</label></div>
+    <div class="field"><button class="btn btn-primary" type="submit">{{ 'Save changes' if edit_obj else 'Add technician' }}</button>{% if edit_obj %} <a href="/setup/personnel" class="btn">Cancel</a>{% endif %}</div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>All technicians</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Position</th><th>Discipline</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.first_name }} {{ r.last_name }}</td>
+          <td>{{ r.position or '—' }}</td>
+          <td>{{ r.discipline or '—' }}</td>
+          <td>{{ 'Active' if r.is_active else 'Inactive' }}</td>
+          <td>
+            <a class="btn btn-sm" href="/setup/personnel?edit={{ r.id }}">Edit</a>
+            <form method="post" action="/setup/personnel/{{ r.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this technician?')">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="muted" colspan="5">No technicians yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

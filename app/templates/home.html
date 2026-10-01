@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Home — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    <div class="sub">Welcome back, {{ user.display_name or user.username }}.</div>
+  </div>
+  <a class="btn btn-primary" href="/planning/draft">Start Planning</a>
+</div>
+
+<div class="stat-grid">
+  <div class="stat"><div class="num">{{ stats.draft }}</div><div class="label">Draft plan items</div></div>
+  <div class="stat"><div class="num">{{ stats.scheduled }}</div><div class="label">Scheduled</div></div>
+  <div class="stat"><div class="num">{{ stats.completed }}</div><div class="label">Completed</div></div>
+</div>
+
+<div class="card">
+  <h2>Due soon (next 30 days)</h2>
+  {% if due_soon %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Tag</th><th>Description</th><th>Service</th><th>Location</th>
+          <th>Last completed</th><th>Proposed date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in due_soon %}
+        <tr>
+          <td class="tag">{{ p.equipment.tag1 }}</td>
+          <td>{{ p.equipment.description }}</td>
+          <td>{{ p.service.name }}</td>
+          <td>{{ p.equipment.location.name if p.equipment.location else '—' }}</td>
+          <td>{{ p.last_completed_date|fmt_date }}</td>
+          <td>{{ p.proposed_date|fmt_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted" style="color:var(--text-muted)">No items due in the next 30 days.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Service Vendors — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Service Vendor</h1><div class="sub">Vendors who perform the maintenance work.</div></div></div>
+{% include "setup/_tabs.html" %}
+
+<div class="card">
+  <h2>{{ 'Edit vendor' if edit_obj else 'Add vendor' }}</h2>
+  <form method="post" action="/setup/vendors" class="form-grid">
+    {% if edit_obj %}<input type="hidden" name="vendor_id" value="{{ edit_obj.id }}">{% endif %}
+    <div class="field"><label>Vendor name</label><input type="text" name="name" placeholder="XYZ Company" maxlength="128" value="{{ edit_obj.name if edit_obj else '' }}" required></div>
+    <div class="field"><label>Contact name</label><input type="text" name="contact_name" maxlength="128" value="{{ edit_obj.contact_name if edit_obj else '' }}"></div>
+    <div class="field"><label>Phone</label><input type="text" name="phone" maxlength="64" value="{{ edit_obj.phone if edit_obj else '' }}"></div>
+    <div class="field"><label>Email</label><input type="email" name="email" maxlength="128" value="{{ edit_obj.email if edit_obj else '' }}"></div>
+    <div class="field"><button class="btn btn-primary" type="submit">{{ 'Save changes' if edit_obj else 'Add vendor' }}</button>{% if edit_obj %} <a href="/setup/vendors" class="btn">Cancel</a>{% endif %}</div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>All vendors</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Contact</th><th>Phone</th><th>Email</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.name }}</td>
+          <td>{{ r.contact_name or '—' }}</td>
+          <td>{{ r.phone or '—' }}</td>
+          <td>{{ r.email or '—' }}</td>
+          <td>
+            <a class="btn btn-sm" href="/setup/vendors?edit={{ r.id }}">Edit</a>
+            <form method="post" action="/setup/vendors/{{ r.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this vendor?')">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="muted" colspan="5">No vendors yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

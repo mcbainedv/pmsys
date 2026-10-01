@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Users — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Users</h1><div class="sub">Manage login accounts.</div></div></div>
+
+<div class="card">
+  <h2>Add user</h2>
+  <form method="post" action="/users" class="form-grid">
+    <div class="field"><label>Username</label><input type="text" name="username" required></div>
+    <div class="field"><label>Display name</label><input type="text" name="display_name"></div>
+    <div class="field"><label>Password</label><input type="password" name="password" required minlength="6"></div>
+    <div class="field">
+      <label>Role</label>
+      <select name="role"><option value="user">User</option><option value="admin">Admin</option></select>
+    </div>
+    <div class="field"><button class="btn btn-primary" type="submit">Create user</button></div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Existing users</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Username</th><th>Display name</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td class="tag">{{ u.username }}</td>
+          <td>{{ u.display_name }}</td>
+          <td><span class="chip {{ 'chip-scheduled' if u.role == 'admin' else 'chip-draft' }}">{{ u.role }}</span></td>
+          <td>{{ 'Active' if u.is_active else 'Disabled' }}</td>
+          <td>
+            {% if u.id != user.id %}
+            <form method="post" action="/users/{{ u.id }}/toggle" style="display:inline">
+              <button class="btn btn-sm" type="submit">{{ 'Disable' if u.is_active else 'Enable' }}</button>
+            </form>
+            {% endif %}
+            <form method="post" action="/users/{{ u.id }}/reset-password" class="inline-form" style="display:inline-flex">
+              <input type="password" name="password" placeholder="new password" required minlength="6" style="width:130px">
+              <button class="btn btn-sm" type="submit">Reset</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

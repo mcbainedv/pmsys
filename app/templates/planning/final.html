@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Final Plan — PMSyS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Final Plan</h1><div class="sub">Approved and scheduled work. Generate work orders or close out completed items.</div></div>
+  <a class="btn" href="/planning/final/print" target="_blank">Print final plan</a>
+</div>
+
+<div class="card">
+  <form method="post" action="/planning/closeout">
+    <div class="inline-form" style="margin-bottom:14px">
+      <div class="field"><label>Actual date</label><input type="date" name="actual_date" value="{{ today|fmt_date }}" required></div>
+      <div class="field"><label>Actual vendor</label>
+        <select name="actual_vendor_id"><option value="0">— keep assigned —</option>
+          {% for v in vendors %}<option value="{{ v.id }}">{{ v.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field"><label>Actual technician</label>
+        <select name="actual_personnel_id"><option value="0">— keep assigned —</option>
+          {% for p in personnel %}<option value="{{ p.id }}">{{ p.first_name }} {{ p.last_name }}</option>{% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Close out selected</button>
+      <button class="btn btn-danger" type="submit" formaction="/planning/cancel" onclick="return confirm('Cancel the selected scheduled items? They will move to History.')">Cancel selected</button>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" onclick="ToggleAll(this)" data-target="plan_ids"></th>
+            <th>ID</th><th>Tag 1</th><th>Service</th><th>Location</th><th>Customer</th>
+            <th>Schedule date</th><th>Work order</th><th>Calibration</th><th>Vendor</th><th>Technician</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in plans %}
+          <tr>
+            <td><input type="checkbox" name="plan_ids" value="{{ p.id }}"></td>
+            <td>{{ p.id }}</td>
+            <td class="tag">{{ p.equipment.tag1 }}</td>
+            <td>{{ p.service.name }}</td>
+            <td class="tag">{{ p.equipment.location.name if p.equipment.location else '—' }}</td>
+            <td>{{ p.equipment.customer.name }}</td>
+            <td>{{ p.schedule_date|fmt_date }}</td>
+            <td class="tag">{{ p.wo_no or '—' }}</td>
+            <td class="tag">{{ p.cm_no or '—' }}</td>
+            <td>{{ p.vendor.name if p.vendor else '—' }}</td>
+            <td>{{ (p.personnel.first_name ~ ' ' ~ p.personnel.last_name) if p.personnel else '—' }}</td>
+            <td>
+              <a class="btn btn-sm" href="/reports/work-order/{{ p.id }}" target="_blank">Work order</a>
+              <a class="btn btn-sm" href="/reports/calibration/{{ p.id }}" target="_blank">Calibration</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td class="muted" colspan="12">No scheduled items yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+<script>
+function ToggleAll(src) {
+  var name = src.getAttribute('data-target') || 'plan_ids';
+  document.querySelectorAll('input[name="' + name + '"]').forEach(function (c) { c.checked = src.checked; });
+}
+</script>
+{% endblock %}
